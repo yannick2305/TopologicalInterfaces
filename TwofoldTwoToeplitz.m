@@ -1,10 +1,10 @@
 
 %{
-    ---------------------------------------------------------------------
+    --------------------------------------------------------------
     Author(s):    [Erik Orvehed HILTUNEN , Yannick DE BRUIJN]
     Date:         [September 2025]
-    Description:  [Tridiagonal Twofold 2-Toeplitz with complex entries]
-    ---------------------------------------------------------------------
+    Description:  [Tridiagonal 2-Toeplitz with complex entries]
+    --------------------------------------------------------------
 %}
 
 clc
@@ -12,7 +12,7 @@ clear all;
 close all;
 
 % --- Parameters ---
-    n = 30;  % size of matrix (should be even)
+    n = 28;  % size of matrix (should be even)
 
     % --- Build constant phase shift ---
     phase = 0.0;
@@ -22,12 +22,12 @@ close all;
     %d = repmat([exp(1i*phase), exp(-1i*phase/2)], 1, n/2);
     %V = diag(d);   
 
-    a1 = 1.7 + 0*1i;
-    a2 = 1.5 + 0*1i;
-    b1 = 0.5 + 0.0*1i;
-    b2 = 1.8 + 0.0*1i;
-    c1 = 2.2 - 0.0*1i;
-    c2 = 1.5;
+    a1 = 1.2 + 0.0*1i;
+    a2 = 1+ 0.0*1i;
+    b1 = 3.8 + 0.4*1i;
+    b2 = 1.2 - 0.9*1i;
+    c1 = b1; %1.2 - 0.0*1i;
+    c2 = b2; %0.5 + 0*1i;
 
     % --- Check for edge states in finite system ---
     if abs(c1/b2) - abs(c2/b1) < 0
@@ -104,7 +104,8 @@ close all;
     set(gcf, 'Position', [100, 100, 500, 300]); 
 
     xlim([-0.2 + min(min(real(lambda_roots(1,:))), min(real(lambda_roots(2,:)))), 0.2 + max(max(real(lambda_roots(1,:))), max(real(lambda_roots(2,:))))]);
-    ylim([-0.8, 0.8]);
+    ylim([-3.8, 3.8]);
+    set(gcf, 'Position', [100, 100, 500, 300]); 
     grid on;
     
     legend('Eigenvalues', 'Collapsed Symbol', 'Interpreter', 'latex', 'Location', 'northwest');
@@ -120,21 +121,48 @@ close all;
     T_mirror(1:n, 1:n) = T_flip;
     T_mirror(n:end, n:end) = T;
     
-    T_mirror(n,n) = 3*T(1,1);  % Interface unaffected by this entry
+    eta = 2*T(1,1);
+    q = T(1,2);
+    Tap = T(2,3);
+    gapFreq = -2*q^2/0.7448 + eta;
+    T_mirror(n,n) = eta;  % Interface unaffected by this entry
 
     % --- Compute the Spectrum ---
     eigMirror = eig(T_mirror);
 
+    [VMir, DiaMir] = eig(T_mirror);
+
+
     % --- Generate the submatrix ---
     EigSub = eig(T_Sub);
+
+    % --- Impedence matched Gap Frequency ---
+
+    % Initial guess (important!)
+    lambda0 = 1 +1i;
+    x0 = [real(lambda0); imag(lambda0)];
+    
+    % Options
+    opts = optimoptions('fsolve','Display','iter','TolFun',1e-12,'TolX',1e-12);
+    
+    % Solve
+    [xsol, ~, ~] = fsolve(@(x) fsolve_g_wrapper(x,q,eta,a1,a2,b1,b2,c1,c2), x0, opts);
+    
+    % Recover complex lambda
+    lambda_sol = xsol(1) + 1i*xsol(2);
+    
+    fprintf('Solved lambda = %.15f + %.15fi\n', real(lambda_sol), imag(lambda_sol));
 
     % --- Plot the spectrum ---
     figure;
     plot(nan, nan, 'bx', 'MarkerSize', 8, 'LineWidth', 4.5);
     hold on;
     plot(nan, nan, 'ro', 'MarkerSize', 8, 'LineWidth', 4.5);
-    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 2);
-    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 2);
+    plot(real(lambda_sol), imag(lambda_sol), 'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
+    plot(real(a2), imag(a2), 'ks', 'MarkerSize', 17, 'MarkerFaceColor', 'c');
+
+    %plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 2);
+    %plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 2);
     plot(real(eigMirror), imag(eigMirror), 'bx', 'MarkerSize', 8, 'LineWidth', 1.5);
     plot(real(EigSub),    imag(EigSub),    'ro', 'MarkerSize', 8, 'LineWidth', 1.5);
     xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 14);
@@ -142,13 +170,12 @@ close all;
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
     set(gcf, 'Position', [100, 100, 500, 300]); 
 
-    xlim([-0.2 + min(min(real(lambda_roots(1,:))), min(real(lambda_roots(2,:)))), 0.2 + max(max(real(lambda_roots(1,:))), max(real(lambda_roots(2,:))))]);
-    ylim([-0.8, 0.8]);
+    xlim([-1.5 + min(min(real(lambda_roots(1,:))), min(real(lambda_roots(2,:)))), 1.5 + max(max(real(lambda_roots(1,:))), max(real(lambda_roots(2,:))))]);
+    ylim([-1.5, 2]);
     grid on;
-    legend({'$\sigma(\mathbf{T}_{AB})$','$\sigma(\tilde{\mathbf{T}}_{A})$','$\sigma_{ess}(\mathbf{T}_{AB})$'}, ...
-       'Interpreter','latex','Location','northeast','NumColumns',3);
+    legend({'$\sigma(\mathbf{T}_{AB})$','$\sigma(\tilde{\mathbf{T}}_{A})$','$\lambda_{int}$','$\sigma(\mathbf{B}_0)$'}, ...
+       'Interpreter','latex','Location','northeast','NumColumns',4);
     hold off;
-
 
 %% --- Generate the generalised Brillouin zone ---
    
@@ -191,10 +218,7 @@ close all;
     grid on;
     hold off;
 
-%% --- Compute the edge modes using Widoms formula ---
-
-    % --- Define the matrix valued symbol function ---
-    f = @(z) [a1, b1 + c2*z; c1 + b2/z, a2];
+%% --- Numericlly compute Widom's set for edge states ---
 
     % --- Define Discrete search area ---
     Nx = 100; Ny = 10;
@@ -264,3 +288,40 @@ function detF = det_integral_f(f, lambda, r)
 end    
 
 
+function gval = g(lambda, q, eta, a1, a2, b1, b2, c1, c2)
+
+    % --- Roots via discriminat ---
+    a = c2*c1;
+    b = -((a2 - lambda)*(a1 - lambda) - b2*c2 - c1*b1);
+    c = b2*b1;
+    
+    D = b^2 - 4*a*c;          % Discriminant
+    
+    z1 = (-b + sqrt(D)) / (2*a);
+    z2 = (-b - sqrt(D)) / (2*a);
+    
+    z_all = [z1; z2];
+
+    % ---- Step 2: Pick root of smallest magnitude ----
+    [~, idx] = min(abs(z_all));
+    z_star = z_all(idx);
+
+    % --- Compute eigenvector ratio ---
+    m11   = a2 - lambda;
+    m12   = b2 + c1/z_star;
+    ratio = -m12/m11;   % this equals v1/v2
+
+    gval = 2*q*z_star*ratio + eta;
+  
+end
+
+
+function Fvec = fsolve_g_wrapper(x, q, eta, a1,a2,b1,b2,c1,c2)
+    % x(1) = Re(lambda), x(2) = Im(lambda)
+    lambda = x(1) + 1i*x(2);
+    
+    F = g(lambda, q, eta, a1,a2,b1,b2,c1,c2) - lambda;
+    
+    % fsolve expects real vector, so split real/imag
+    Fvec = [real(F); imag(F)];
+end
