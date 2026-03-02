@@ -6,24 +6,25 @@
     --------------------------------------------------------------
 %}
 
+clc
 clear all;
 close all;
 
     % --- Set the parameters ---
-    si = 5;
+    si = 10;
     n = (4*si + 1);
     s1 = 2;
-    s2 = 1;  % Set s1>s2 for edge mode.
+    s2 = 1;   % Set s1>s2 for edge mode.
     fs = 18;
     
     % --- Generare SSH Capacitance ---
     C = generate_SSH_Capacitance(n, s1, s2);
     
     % --- Complex wave speed ---
-    phase = -1;
+    phase = 0;
     V = diag( exp(1i*phase) * ones(n,1) );
     T = V * C;
-
+%
     % --- Retrieve Toeplitz structure from Capacitance ---
     a1 = T(3,3); 
     a2 = T(2,2);          
@@ -31,13 +32,13 @@ close all;
     b2 = T(3,2);
     c1 = T(1,2);
     c2 = T(2,3);
-
-    % --- Retrieve Edge mode ---
-    Edge_Toeplitz = T(2,2);
+    eta = T(floor(n/2)+1, floor(n/2)+1);
 
 % --- Generate and plot the spectrum ---
 
     eigvals = eig(T);
+
+    [VecT, DiaT] = eig(T);
     [~, idx] = max(abs(eigvals));   
     eigvals(idx) = [];                 
 
@@ -71,25 +72,43 @@ close all;
             lambda_roots(:, k) = [lambda1; lambda2];
         end
         
+    
+    % --- Pings asymptotic interface frequency ---
+    PingFreq = exp(1i*phase) * 0.5 * ( -sqrt( 9/(s1^2) - 14/(s1*s2) + 9/(s2^2) ) + 3/s1 + 3/s2 ) ;
+
+    fprintf('Ping lambda =   %.15f + %.15fi\n', real(PingFreq), imag(PingFreq));
+
+    % --- Impedance matched Frequency ---
+    lambda0 = 0.5 - 1*1i;  % Initial guess
+    x0 = [real(lambda0); imag(lambda0)];
+    
+    opts = optimoptions('fsolve','Display','off','TolFun',1e-12,'TolX',1e-12);
+    
+    % --- Solve Numerically ---
+    [xsol, ~, ~] = fsolve(@(x) fsolve_g_wrapper(x,b2,eta,a1,a1,b2,b1,c2,c1), x0, opts);
+    lambda_sol = xsol(1) + 1i*xsol(2);
+    fprintf('Solved lambda = %.15f + %.15fi\n', real(lambda_sol), imag(lambda_sol));
+
     % --- Generate Figure ---
     figure;
-    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'r-', 'LineWidth', 2);
+    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 2);
     hold on;
-    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'r-', 'LineWidth', 2);
-    plot(real(Edge_Toeplitz), imag(Edge_Toeplitz), 'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
-    plot(real(eigvals), imag(eigvals), 'bx', 'LineWidth', 2);
-    
-    xlabel('Real Part',     'Interpreter','latex','FontSize',fs);
-    ylabel('Imaginary Part','Interpreter','latex','FontSize',fs);
+    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 2);
+    plot(real(a2),                imag(a2),                'ks', 'MarkerSize', 17, 'MarkerFaceColor', 'c');
+    plot(real(lambda_sol),        imag(lambda_sol),        'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
+    plot(real(eigvals),           imag(eigvals),           'bx', 'MarkerSize', 8,  'LineWidth', 2.5);
+    xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 14);
+    ylabel('$\mathrm{Im}$', 'Interpreter', 'latex', 'FontSize', 14);
     ax = gca;
     ax.TickLabelInterpreter = 'latex';
     ax.FontSize = fs; 
-    legend({'$\bigcup_{\alpha \in [0, 2\pi)} \bigl(\tilde{f}(e^{-\mathrm{i}\alpha})\bigr)$', '', '$\sigma(\mathbf{B_0})$', '$\sigma\bigl(\mathcal{C}_n\bigr)$'}, ...
-           'Interpreter','latex','FontSize',fs, 'Location', 'best');
+    legend({'$\Lambda$', '', '$\sigma(\mathbf{B_0})$','$\lambda_{int}$', '$\sigma\bigl(\mathcal{C}_n\bigr)$'}, ...
+           'Interpreter','latex','FontSize',fs,'Location','northeast','NumColumns',4);
+    xlim([-0.3 + min(real(eigvals)), 0.3 + max(real(eigvals))]);
+    ylim([-0.5 + min(imag(eigvals)), 0.5 + max(imag(eigvals))])
     hold off;
     grid on;
     set(gcf, 'Position', [100, 100, 500, 300]);
-
 
 %% --- Defining function ---
 
@@ -152,3 +171,44 @@ function C = generate_SSH_Capacitance(n, s1, s2)
         C(mid2, mid2) = eta;
     end
 end
+
+
+function gval = g(lambda, q, eta, a1, a2, b1, b2, c1, c2)
+
+    % --- Roots via discriminat ---
+    a = c2*c1;
+    b = -((a2 - lambda)*(a1 - lambda) - b2*c2 - c1*b1);
+    c = b2*b1;
+    
+    D = b^2 - 4*a*c;          % Discriminant
+    
+    z1 = (-b + sqrt(D)) / (2*a);
+    z2 = (-b - sqrt(D)) / (2*a);
+    
+    z_all = [z1; z2];
+
+    % ---- Step 2: Pick root of smallest magnitude ----
+    [~, idx] = min(abs(z_all));
+    z_star = z_all(idx);
+    %disp(z_star)
+
+    % --- Compute eigenvector ratio ---
+    m11   = a2 - lambda;
+    m12   = b2 + c1/z_star;
+    ratio = -m12/m11;   % this equals v1/v2
+
+    gval = 2*q*z_star*ratio + eta;
+  
+end
+
+
+function Fvec = fsolve_g_wrapper(x, q, eta, a1,a2,b1,b2,c1,c2)
+    % x(1) = Re(lambda), x(2) = Im(lambda)
+    lambda = x(1) + 1i*x(2);
+    
+    F = g(lambda, q, eta, a1,a2,b1,b2,c1,c2) - lambda;
+    
+    % fsolve expects real vector, so split real/imag
+    Fvec = [real(F); imag(F)];
+end
+
