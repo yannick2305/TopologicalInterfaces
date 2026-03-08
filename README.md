@@ -34,4 +34,9 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/OpenLimitResonatorChain.png" alt="Open limit resonator" width="350"/> 
 </p>
 
+**Disordered Dimer Interface chain** (`TwofoldTrimer.m`)  
+
+<p align="center"> 
+  <img src="Images/DisorderSpectrum.png" alt="Disorder Sprectrum" width="350"/> 
+</p>
   
