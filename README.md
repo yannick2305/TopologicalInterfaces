@@ -19,36 +19,36 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
 **Mirrored Dimer twofold Toeplitz** (`TwofoldDimer.m`)  
 
 <p align="center"> 
-  <img src="Images/OpenLimitDimer.png" alt="Mirrored Dimer" width="350"/> 
+  <img src="Images/OpenLimitDimer.png" alt="Mirrored Dimer" width="550"/> 
 </p>
 
 **Mirrored Trimer twofold Toeplitz** (`TwofoldTrimer.m`)  
 
 <p align="center"> 
-  <img src="Images/OpenLimitTrimer.png" alt="Mirrored Trimer" width="350"/> 
+  <img src="Images/OpenLimitTrimer.png" alt="Mirrored Trimer" width="550"/> 
 </p>
 
 **Open Limit damped resonator chain** (`DampedDimerChain.m` and `DampedTrimerChain.m`)  
 
 <p align="center"> 
-  <img src="Images/OpenLimitResonatorChain.png" alt="Open limit resonator" width="350"/> 
+  <img src="Images/OpenLimitResonatorChain.png" alt="Open limit resonator" width="550"/> 
 </p>
 
-**Interface modes damped resonator chain** (`DampedDimerChain.m` and `DampedTrimerChain.m`)  
+**Interface modes damped resonator chain** (`DampedInterfcaeSSH.m`)  
 
 <p align="center"> 
-  <img src="Images/ChainInterface.png" alt="Chain interface" width="350"/> 
+  <img src="Images/ChainInterface.png" alt="Chain interface" width="550"/> 
 </p>
 
 **Spectrum Disordered Dimer Interface chain** (`DisorderedSpectrumSSH.m`)  
 
 <p align="center"> 
-  <img src="Images/DisorderSpectrum.png" alt="Disorder Sprectrum" width="350"/> 
+  <img src="Images/DisorderSpectrum.png" alt="Disorder Sprectrum" width="550"/> 
 </p>
 
 **Decay rates Disordered Dimer Interface chain** (`DisorderedDecaySSH.m`)  
 
 <p align="center"> 
-  <img src="Images/DisorderDecay.png" alt="Disorder Decay" width="350"/> 
+  <img src="Images/DisorderDecay.png" alt="Disorder Decay" width="550"/> 
 </p>
   
