@@ -30,8 +30,8 @@ close all;
 
     EigG = eig(G);
 
-    % --- Generate and plot the spectrum ---
-
+% --- Generate open limit and plot the spectrum ---
+    % --- Extract the entires of Generalised Capacitance ---
     a1 = G(3,3);
     a2 = G(2,2);
     b1 = G(1,2);
@@ -40,53 +40,49 @@ close all;
     c2 = G(3,2); 
 
     % --- Generate the open spectrum ---
-        beta = 0.5 * log( abs( (b1*b2) / (c1*c2) ));
-        N = 100;
-        alpha_vals = linspace(pi, 2*pi, N);
-        lambda_roots = zeros(2, N); % Two roots per alpha
+    beta = 0.5 * log( abs( (b1*b2) / (c1*c2) ));
+    N = 100;
+    alpha_vals = linspace(pi, 2*pi, N);
+    lambda_roots = zeros(2, N); % Two roots per alpha
         
-        for k = 1:N
-            alphaVal = alpha_vals(k);
+    for k = 1:N
+        alphaVal = alpha_vals(k);
         
-            % Constant term of the quadratic
-            C = a1*a2 ...
-                - c1*c2 * exp(-1i * alphaVal + beta) ...
-                - b1*b2 * exp( 1i * alphaVal - beta) ...
-                - c1*b1 - b2*c2;
+        % --- Constant term of the quadratic ---
+        C = a1*a2 ...
+            - c1*c2 * exp(-1i * alphaVal + beta) ...
+            - b1*b2 * exp( 1i * alphaVal - beta) ...
+            - c1*b1 - b2*c2;
         
-            % --- Coefficients of quadratic ---
-            A = 1;
-            B = -(a1 + a2);
-            D = B^2 - 4*A*C;
+        % --- Coefficients of quadratic ---
+        A = 1;
+        B = -(a1 + a2);
+        D = B^2 - 4*A*C;
         
-            % --- Quadratic formula ---
-            lambda1 = (-B + sqrt(D)) / (2*A);
-            lambda2 = (-B - sqrt(D)) / (2*A);
+        % --- Quadratic formula ---
+        lambda1 = (-B + sqrt(D)) / (2*A);
+        lambda2 = (-B - sqrt(D)) / (2*A);
         
-            lambda_roots(:, k) = [lambda1; lambda2];
-        end
+        lambda_roots(:, k) = [lambda1; lambda2];
+    end
 
 % --- Plot the spectrum ---
+
     figure;
     plot(nan, nan, 'ro', 'MarkerSize', 8, 'LineWidth', 4.5);
     hold on;
     plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 4);
     plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 4);
-
     plot(real(EigG),     imag(EigG),     'ro', 'MarkerSize', 8, 'LineWidth', 1.5);
-
     xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 14);
     ylabel('$\mathrm{Im}$', 'Interpreter', 'latex', 'FontSize', 14);
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
     set(gcf, 'Position', [100, 100, 500, 300]); 
-
-    legend({'$\sigma(\mathcal{C}_N)$','$\Lambda$'}, ...
-       'Interpreter','latex','Location','northwest','NumColumns',2);
+    legend({'$\sigma(\mathcal{C}_N)$','$\Lambda$'}, 'Interpreter','latex','Location','northwest','NumColumns',2);
     xlim([-0.2 + min( real(EigG )), 0.2 + max( real(EigG) )]);
     ylim([-0.2 + min( imag(EigG )), 0.2 + max( imag(EigG) )]);
     set(gcf, 'Position', [100, 100, 500, 300]); 
     grid on;
-
 
 %% --- Defining functions ---
 
@@ -97,7 +93,7 @@ function C = generate_Capacitance(n, s1, s2)
         error('Matrix size n must be of the form 2*N, where N is a natural number (N > 1).');
     end
 
-    % Define the parameters based on the input equations
+    % --- Define entries based on spacings ---
     beta1  = -1 / s1;       
     beta2  = -1 / s2;
     alpha1 =  1 / s1 + 1 / s2; 
