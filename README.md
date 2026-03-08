@@ -40,7 +40,7 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/DisorderSpectrum.png" alt="Disorder Sprectrum" width="350"/> 
 </p>
 
-**Decay rates Disordered Dimer Interface chain** (`DisorderedSpectrumSSH.m`)  
+**Decay rates Disordered Dimer Interface chain** (`DisorderedDecaySSH.m`)  
 
 <p align="center"> 
   <img src="Images/DisorderDecay.png" alt="Disorder Decay" width="350"/> 
