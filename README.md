@@ -12,7 +12,7 @@
 
   <sub>Last updated: March 13, 2026</sub>
 
-## II.1 Mirrored Twofold Toeplitz operators
+## I. Mirrored Twofold Toeplitz operators
 
 We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued entries.
 
@@ -28,6 +28,8 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/OpenLimitTrimer.png" alt="Mirrored Trimer" width="550"/> 
 </p>
 
+## II. Damped Resonator chains
+
 **Open Limit damped resonator chain** (`DampedDimerChain.m` and `DampedTrimerChain.m`)  
 
 <p align="center"> 
@@ -40,6 +42,8 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/ChainInterface.png" alt="Chain interface" width="550"/> 
 </p>
 
+## III. Disorder Damped Interface SSH
+
 **Spectrum Disordered Dimer Interface chain** (`DisorderedSpectrumSSH.m`)  
 
 <p align="center"> 
@@ -51,4 +55,11 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
 <p align="center"> 
   <img src="Images/DisorderDecay.png" alt="Disorder Decay" width="550"/> 
 </p>
-  
+
+
+## IV. Citation
+
+If you use this code in your research, please cite:
+
+> de Bruijn, Y.and Hiltunen, E.O., *Twofold Tridiagonal Toeplitzs* (2026)
+
