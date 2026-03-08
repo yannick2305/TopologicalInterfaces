@@ -16,12 +16,13 @@
 
 We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued entries.
 
-**Root Tracking Algorithm** (`CBScontinuous.m`)  
-Continuously tracks roots as λ varies, plotting z(λ) directly. Blue crosses overlay the complex band structure, denoting numerically computed exponential decay rates of Toeplitz matrix eigenvectors.
+**Mirrored Dimer twofold Toeplitz** (`TwofoldDimer.m`)  
 
 <p align="center"> 
   <img src="Images/OpenLimitDimer.png" alt="Mirrored Dimer" width="350"/> 
 </p>
+
+**Mirrored Trimer twofold Toeplitz** (`TwofoldTrimer.m`)  
 
 <p align="center"> 
   <img src="Images/OpenLimitTrimer.png" alt="Mirrored Trimer" width="350"/> 
