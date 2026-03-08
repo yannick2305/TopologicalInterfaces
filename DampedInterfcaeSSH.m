@@ -1,7 +1,7 @@
 %{
     --------------------------------------------------------------
     Author(s):    [Erik Orvehed HILTUNEN , Yannick DE BRUIJN]
-    Date:         [September 2025]
+    Date:         [March 2026]
     Description:  [SSH complex wavespeed]
     --------------------------------------------------------------
 %}
@@ -10,22 +10,22 @@ clc
 clear all;
 close all;
 
-    % --- Set the parameters ---
+% --- Set the parameters ---
     si = 10;
-    n = (4*si + 1);
+    n  = (4*si + 1);
     s1 = 2;
     s2 = 1;   % Set s1>s2 for edge mode.
     fs = 18;
     
-    % --- Generare SSH Capacitance ---
+% --- Generare SSH Capacitance ---
     C = generate_SSH_Capacitance(n, s1, s2);
     
-    % --- Complex wave speed ---
+% --- Complex wave speed ---
     phase = 0;
     V = diag( exp(1i*phase) * ones(n,1) );
     T = V * C;
-%
-    % --- Retrieve Toeplitz structure from Capacitance ---
+
+% --- Retrieve Toeplitz structure from Capacitance ---
     a1 = T(3,3); 
     a2 = T(2,2);          
     b1 = T(2,1); 
@@ -34,57 +34,53 @@ close all;
     c2 = T(2,3);
     eta = T(floor(n/2)+1, floor(n/2)+1);
 
-% --- Generate and plot the spectrum ---
+% --- Generate open limit and plot the spectrum ---
 
     eigvals = eig(T);
-
     [VecT, DiaT] = eig(T);
     [~, idx] = max(abs(eigvals));   
     eigvals(idx) = [];                 
 
-    %
     % --- Compute non-reciprocity ---
     beta = 0.5 * log( abs( (b1*b2) / (c1*c2) ));
-    % --- Compute the open spectrum ---
-        N = 500;
-        alpha_vals = linspace(0, 2*pi, N);
-        lambda_roots = zeros(2, N); % Two roots per alpha
-        
-        for k = 1:N
-            alphaVal = alpha_vals(k);
-        
-            % Constant term of the quadratic
-            C = a1*a2 ...
-                - c1*c2 * exp(-1i * alphaVal + beta) ...
-                - b1*b2 * exp( 1i * alphaVal - beta) ...
-                - c1*b1 - b2*c2;
-        
-            % Coefficients of quadratic: lambda^2 - (a1 + a2)*lambda + C
-            A = 1;
-            B = -(a1 + a2);
-            D = B^2 - 4*A*C;
-        
-            % Quadratic formula
-            lambda1 = (-B + sqrt(D)) / (2*A);
-            lambda2 = (-B - sqrt(D)) / (2*A);
-            
-            % --- Solve quadratic equation for lambda ---
-            lambda_roots(:, k) = [lambda1; lambda2];
-        end
-        
     
-    % --- Pings asymptotic interface frequency ---
+    % --- Compute the open spectrum ---
+    N = 500;
+    alpha_vals = linspace(0, 2*pi, N);
+    lambda_roots = zeros(2, N); % Two roots per alpha
+        
+    for k = 1:N
+        alphaVal = alpha_vals(k);
+        
+        % --- Constant term of the quadratic ---
+        C = a1*a2 ...
+            - c1*c2 * exp(-1i * alphaVal + beta) ...
+            - b1*b2 * exp( 1i * alphaVal - beta) ...
+            - c1*b1 - b2*c2;
+        
+        % --- Coefficients of quadratic ---
+        A = 1;
+        B = -(a1 + a2);
+        D = B^2 - 4*A*C;
+        
+        % --- Quadratic formula ---
+        lambda1 = (-B + sqrt(D)) / (2*A);
+        lambda2 = (-B - sqrt(D)) / (2*A);
+            
+        % --- Solve quadratic equation for lambda ---
+        lambda_roots(:, k) = [lambda1; lambda2];
+    end
+        
+    % --- Ping's asymptotic interface frequency ---
     PingFreq = exp(1i*phase) * 0.5 * ( -sqrt( 9/(s1^2) - 14/(s1*s2) + 9/(s2^2) ) + 3/s1 + 3/s2 ) ;
-
     fprintf('Ping lambda =   %.15f + %.15fi\n', real(PingFreq), imag(PingFreq));
 
     % --- Impedance matched Frequency ---
     lambda0 = 0.5 - 1*1i;  % Initial guess
-    x0 = [real(lambda0); imag(lambda0)];
-    
-    opts = optimoptions('fsolve','Display','off','TolFun',1e-12,'TolX',1e-12);
-    
+
     % --- Solve Numerically ---
+    x0 = [real(lambda0); imag(lambda0)];
+    opts = optimoptions('fsolve','Display','off','TolFun',1e-12,'TolX',1e-12);
     [xsol, ~, ~] = fsolve(@(x) fsolve_g_wrapper(x,b2,eta,a1,a1,b2,b1,c2,c1), x0, opts);
     lambda_sol = xsol(1) + 1i*xsol(2);
     fprintf('Solved lambda = %.15f + %.15fi\n', real(lambda_sol), imag(lambda_sol));
@@ -111,7 +107,6 @@ close all;
     set(gcf, 'Position', [100, 100, 500, 300]);
 
 %% --- Defining function ---
-
 
 function C = generate_SSH_Capacitance(n, s1, s2)
     % Objective: compute the interface capacitance matrix
