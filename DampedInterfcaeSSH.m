@@ -133,7 +133,7 @@ close all;
 
         eig_C_per = sort(eig(C_per));
 
-        interface_freq(i) = eig_C_per(floor(n/2)+2);
+        interface_freq(i) = eig_C_per(floor(n/2)+1);
     end
 
     % --- Generate Figure ---
