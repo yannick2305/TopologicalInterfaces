@@ -13,17 +13,17 @@ close all;
 % --- Set the parameters ---
     si = 10;
     n  = (4*si + 1);
-    s1 = 2;
-    s2 = 1;   % Set s1>s2 for edge mode.
+    s1 = 1;
+    s2 = 2;   % Set s1>s2 for edge mode.
     fs = 18;
     
 % --- Generare SSH Capacitance ---
-    C = generate_SSH_Capacitance(n, s1, s2);
+    Cap = generate_SSH_Capacitance(n, s1, s2);
     
 % --- Complex wave speed ---
-    phase = 0;
+    phase = -1;
     V = diag( exp(1i*phase) * ones(n,1) );
-    T = V * C;
+    T = V * Cap;
 
 % --- Retrieve Toeplitz structure from Capacitance ---
     a1 = T(3,3); 
@@ -87,24 +87,80 @@ close all;
 
     % --- Generate Figure ---
     figure;
-    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 2);
+    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 4);
     hold on;
-    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 2);
-    plot(real(a2),                imag(a2),                'ks', 'MarkerSize', 17, 'MarkerFaceColor', 'c');
+    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 4);
+    %plot(real(a2),                imag(a2),                'ks', 'MarkerSize', 17, 'MarkerFaceColor', 'c');
     plot(real(lambda_sol),        imag(lambda_sol),        'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
-    plot(real(eigvals),           imag(eigvals),           'bx', 'MarkerSize', 8,  'LineWidth', 2.5);
+    plot(real(eigvals),           imag(eigvals),           'rx', 'MarkerSize', 10,  'LineWidth', 2.5);
     xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 14);
     ylabel('$\mathrm{Im}$', 'Interpreter', 'latex', 'FontSize', 14);
     ax = gca;
     ax.TickLabelInterpreter = 'latex';
     ax.FontSize = fs; 
-    legend({'$\Lambda$', '', '$\sigma(\mathbf{B_0})$','$\lambda_{int}$', '$\sigma\bigl(\mathcal{C}_n\bigr)$'}, ...
+    legend({'$\Gamma$', '', '$\lambda_{int}$', '$\sigma\bigl(\mathcal{C}_n\bigr)$'}, ...
            'Interpreter','latex','FontSize',fs,'Location','northeast','NumColumns',4);
-    xlim([-0.3 + min(real(eigvals)), 0.3 + max(real(eigvals))]);
-    ylim([-0.5 + min(imag(eigvals)), 0.5 + max(imag(eigvals))])
+
+    %$\lambda_{int}$ $\sigma(\mathbf{B_0})$
+    xlim([-0.2 + min(real(eigvals)), 0.2 + max(real(eigvals))]);
+    ylim([-0.3 + min(imag(eigvals)), 0.3 + max(imag(eigvals))])
     hold off;
     grid on;
     set(gcf, 'Position', [100, 100, 500, 300]);
+    exportgraphics(gcf,'ComplexSSH.pdf','ContentType','vector')
+
+
+%% --- Topological robustness ---
+
+    N = 50;
+    s_int_all = linspace(0.01, 5, N);
+    interface_freq = zeros(1, N); % Two roots per alpha
+
+    for i = 1:N
+        s_int = s_int_all(i);
+        
+        q_def   = -1/s_int;
+        eta_def = 2/s_int;
+
+        mid = floor(n/2)+1;
+
+        C_per = Cap;
+        C_per(mid , mid) = eta_def;
+        C_per(mid, mid +1) = q_def;
+        C_per(mid ,mid -1) = q_def;
+        C_per(mid +1,mid ) = q_def;
+        C_per(mid -1,mid ) = q_def;
+
+        eig_C_per = sort(eig(C_per));
+
+        interface_freq(i) = eig_C_per(floor(n/2)+2);
+    end
+
+    % --- Generate Figure ---
+    figure;
+    hold on;
+
+    xlim([0, s_int_all(end)]);
+    xl = xlim;
+    patch([xl(1) xl(2) xl(2) xl(1)], [1.0 1.0 2.0 2.0], 'r', 'FaceAlpha', 0.1, 'EdgeColor', 'none')
+
+    for i = 1:N
+        plot(s_int_all(i), interface_freq(i), 'ko', 'MarkerSize', 5, 'MarkerFaceColor', 'k');
+    end
+    yline(2.0, 'r-', 'LineWidth', 1.0)
+    yline(1.0, 'r-', 'LineWidth', 1.0)
+
+    xlabel('$s_{int}$', 'Interpreter', 'latex', 'FontSize', 14);
+    ylabel('Interface Frequency', 'Interpreter', 'latex', 'FontSize', 14);
+    ax = gca;
+    ax.TickLabelInterpreter = 'latex';
+    ax.FontSize = fs; 
+    ylim([0.8, 2.2]);
+    hold off;
+    grid on;
+    box on;
+    set(gcf, 'Position', [100, 100, 500, 300]);
+
 
 %% --- Defining function ---
 
@@ -206,4 +262,3 @@ function Fvec = fsolve_g_wrapper(x, q, eta, a1,a2,b1,b2,c1,c2)
     % fsolve expects real vector, so split real/imag
     Fvec = [real(F); imag(F)];
 end
-
