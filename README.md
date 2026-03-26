@@ -20,6 +20,13 @@
   <img src="Images/TopoDimer.png" alt="Topologically protected edge modes" width="550"/> 
 </p>
 
+**Dimer topologically protected edges modes** (`ComplexTrimerTopo.m`) 
+
+<p align="center"> 
+  <img src="Images/TopoTrimer.png" alt="Complex edge modes trimer" width="550"/> 
+</p>
+
+
 ## I. Mirrored Twofold Toeplitz operators
 
 We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued entries.
