@@ -2,7 +2,7 @@
 %{
     --------------------------------------------------------------
     Author(s):    [Erik Orvehed HILTUNEN , Yannick DE BRUIJN]
-    Date:         [September 2025]
+    Date:         [March 2026]
     Description:  [Tridiagonal 2-Toeplitz with complex entries]
     --------------------------------------------------------------
 %}
@@ -12,29 +12,14 @@ clear all;
 close all;
 
 % --- Parameters ---
-    n = 28;  % size of matrix (should be even)
-
-    % --- Build constant phase shift ---
-    phase = 0.0;
-    V = diag( exp(1i*phase) * ones(n,1) );
-
-    % --- Build alternating diagonal values ---
-    %d = repmat([exp(1i*phase), exp(-1i*phase/2)], 1, n/2);
-    %V = diag(d);   
+    n = 28;  % Size of matrix (should be even)
 
     a1 = 1.2 + 0.0*1i;
-    a2 = 1+ 0.0*1i;
-    b1 = 3.8 + 0.4*1i;
-    b2 = 1.2 - 0.9*1i;
-    c1 = b1; %1.2 - 0.0*1i;
-    c2 = b2; %0.5 + 0*1i;
-
-    % --- Check for edge states in finite system ---
-    if abs(c1/b2) - abs(c2/b1) < 0
-        disp('Submatrix has edge State')
-    else
-        disp('Submatrix has no edge State')
-    end
+    a2 = 2.0 + 0.0*1i;
+    b1 = 0.8 + 0.4*1i;
+    b2 = 1.2 - 0.2*1i;
+    c1 = b1; 
+    c2 = b2; 
 
 % --- Generate 2-Toeplitz matrix ---
     main_diag = repmat([a1; a2], n/2, 1);
@@ -52,10 +37,6 @@ close all;
     end
     
     T = diag(main_diag) + diag(above_diag, 1) + diag(below_diag, -1);
-
-    % --- Complexify the entries (for Capacitance) ---
-    T = V * T;
-
     [V, Dia] = eig(T);
 
     % --- Generate the submatrix ---
@@ -64,7 +45,7 @@ close all;
 
 % --- Generate and plot the spectrum ---
 
-    % --- Generate the open spectrum ---
+    % --- Generate the essential spectrum ---
         beta = 0.5 * log( abs( (b1*b2) / (c1*c2) ));
         N = 1000;
         alpha_vals = linspace(pi, 2*pi, N);
@@ -91,27 +72,7 @@ close all;
             lambda_roots(:, k) = [lambda1; lambda2];
         end
 
-    % --- Plot in complex plane ---
-    figure;
-    plot(nan, nan, 'rx', 'MarkerSize', 8, 'LineWidth', 4.5);
-    hold on;
-    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 4);
-    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'k-', 'LineWidth', 4);
-    plot(real(eigvals),     imag(eigvals),     'bx', 'MarkerSize', 8, 'LineWidth', 1.5);
-    xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 14);
-    ylabel('$\mathrm{Im}$', 'Interpreter', 'latex', 'FontSize', 14);
-    set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
-    set(gcf, 'Position', [100, 100, 500, 300]); 
-
-    xlim([-0.2 + min(min(real(lambda_roots(1,:))), min(real(lambda_roots(2,:)))), 0.2 + max(max(real(lambda_roots(1,:))), max(real(lambda_roots(2,:))))]);
-    ylim([-3.8, 3.8]);
-    set(gcf, 'Position', [100, 100, 500, 300]); 
-    grid on;
-    
-    legend('Eigenvalues', 'Collapsed Symbol', 'Interpreter', 'latex', 'Location', 'northwest');
-    hold off;
-
-%% --- Generate chiral symmetric Twofold Toeplitz matrix ---
+% --- Generate reflection symmetric Twofold Toeplitz matrix ---
 
     % --- Generate the reflection ---
     T_flip = rot90(T,2).';
@@ -129,9 +90,7 @@ close all;
 
     % --- Compute the Spectrum ---
     eigMirror = eig(T_mirror);
-
     [VMir, DiaMir] = eig(T_mirror);
-
 
     % --- Generate the submatrix ---
     EigSub = eig(T_Sub);
@@ -139,19 +98,25 @@ close all;
     % --- Impedence matched Gap Frequency ---
 
     % Initial guess (important!)
-    lambda0 = 1 +1i;
+    lambda0 = 5 - 0.8*1i;
     x0 = [real(lambda0); imag(lambda0)];
+
+    lambda1 = 2 + 0.1*1i;
+    x1 = [real(lambda1); imag(lambda1)];
     
     % Options
-    opts = optimoptions('fsolve','Display','iter','TolFun',1e-12,'TolX',1e-12);
+    opts = optimoptions('fsolve','Display','off','TolFun',1e-12,'TolX',1e-12);
     
     % Solve
-    [xsol, ~, ~] = fsolve(@(x) fsolve_g_wrapper(x,q,eta,a1,a2,b1,b2,c1,c2), x0, opts);
+    [xsol,  ~, ~] = fsolve(@(x) fsolve_g_wrapper(x,q,eta,a1,a2,b1,b2,c1,c2), x0, opts);
+    [xsol2, ~, ~] = fsolve(@(x) fsolve_g_wrapper(x,q,eta,a1,a2,b1,b2,c1,c2), x1, opts);
     
     % Recover complex lambda
-    lambda_sol = xsol(1) + 1i*xsol(2);
+    lambda_sol  = xsol(1)  + 1i*xsol(2);
+    lambda_sol2 = xsol2(1) + 1i*xsol2(2);
     
-    fprintf('Solved lambda = %.15f + %.15fi\n', real(lambda_sol), imag(lambda_sol));
+    fprintf('Solved lambda = %.15f + %.15fi\n', real(lambda_sol),  imag(lambda_sol));
+    fprintf('Solved lambda = %.15f + %.15fi\n', real(lambda_sol2), imag(lambda_sol2));
 
     % --- Plot the spectrum ---
     figure;
@@ -159,6 +124,7 @@ close all;
     hold on;
     plot(nan, nan, 'ro', 'MarkerSize', 8, 'LineWidth', 4.5);
     plot(real(lambda_sol), imag(lambda_sol), 'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
+    plot(real(lambda_sol2), imag(lambda_sol2), 'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
     plot(real(a2), imag(a2), 'ks', 'MarkerSize', 17, 'MarkerFaceColor', 'c');
 
     %plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'k-', 'LineWidth', 2);
@@ -170,123 +136,168 @@ close all;
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
     set(gcf, 'Position', [100, 100, 500, 300]); 
 
-    xlim([-1.5 + min(min(real(lambda_roots(1,:))), min(real(lambda_roots(2,:)))), 1.5 + max(max(real(lambda_roots(1,:))), max(real(lambda_roots(2,:))))]);
-    ylim([-1.5, 2]);
+    xlim([-0.5 + min(real(EigSub)), 0.5 + max(real(EigSub))]);
+    ylim([-0.5 + min(imag(EigSub)), 0.5 + max(imag(EigSub))]);
     grid on;
-    legend({'$\sigma(\mathbf{T}_{AB})$','$\sigma(\tilde{\mathbf{T}}_{A})$','$\lambda_{int}$','$\sigma(\mathbf{B}_0)$'}, ...
+    legend({'$\sigma(\mathbf{T}_{AB})$','$\sigma(\mathbf{T}_{A})$','$\lambda_{int}$', '', '$\sigma(\mathbf{B}_0)$'}, ...
        'Interpreter','latex','Location','northeast','NumColumns',4);
     hold off;
 
-%% --- Generate the generalised Brillouin zone ---
-   
-    GBZ = zeros(2, length(eigvals));
 
-    r_reciproc = sqrt((b1*b2)/(c1*c2));
+%% --- Trace the impedence ---
 
-    theta_unit_circle    = linspace(0, 2*pi, 100);
-    r_circle = r_reciproc*exp(1i*theta_unit_circle);
-
-    for index = 1:length(eigvals)
-        lambda = eigvals(index);
-
-        delta_a = -c1*c2;
-        delta_b = ((a1-lambda)*(a2-lambda) - c1*b1 - b2*c2);
-        delta_c = -b1*b2;
+    Re = linspace(-1.5, 5, 1000);
+    Im = linspace(-1.5, 0.7, 1000);
     
-        z_lambda_plus  = (-delta_b + sqrt(delta_b^2 - 4*delta_a*delta_c))/(-2*delta_a); 
-        z_lambda_minus = (-delta_b - sqrt(delta_b^2 - 4*delta_a*delta_c))/(-2*delta_a);
-
-        GBZ(:, index) = [z_lambda_plus; z_lambda_minus];
-
-    end
-
-    figure;
-    plot(real(GBZ(1,:)), imag(GBZ(1,:)), 'ro', 'LineWidth', 2);
-    hold on;
-    plot(real(GBZ(2,:)), imag(GBZ(2,:)), 'ro', 'LineWidth', 2);
-    plot(real(r_circle), imag(r_circle), 'k-', 'LineWidth', 2);
-
-    xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 14);
-    ylabel('$\mathrm{Im}$', 'Interpreter', 'latex', 'FontSize', 14);
-    set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
-    set(gcf, 'Position', [100, 100, 500, 300]); 
-    legend('$f^{-1}\big(\sigma(\mathbf{T_n})\big)$', '', '$r\mathbf{T}$', 'Interpreter', 'latex', 'Location', 'northeast');
-
-    ylim([-1.4*abs(r_reciproc), 1.4*abs(r_reciproc)]);
-
-    axis equal;
-    grid on;
-    hold off;
-
-%% --- Numericlly compute Widom's set for edge states ---
-
-    % --- Define Discrete search area ---
-    Nx = 100; Ny = 10;
-    x = linspace(0, 3, Nx);
-    y = linspace(-0.5, 0.5, Ny);
-    [X, Y] = meshgrid(x, y);
-    lambda_grid = X + 1i*Y;
-
-    detF_grid = zeros(Ny, Nx);
-
-    % --- Loop over the complex plane ---
-    for ix = 1:Nx
-        for iy = 1:Ny
-            g_lambda = (a1-lambda_grid(iy, ix))*(a2-lambda_grid(iy, ix)) - b1*c1 - b2*c2;
-            z1 = (g_lambda - sqrt(g_lambda^2 - 4*c1*c2*b1*b2)) / (2*c1*c2);
-            z2 = (g_lambda + sqrt(g_lambda^2 - 4*c1*c2*b1*b2)) / (2*c1*c2);
-            rad = (abs(z1) + abs(z2))/2;
+    Fvals = zeros(length(Im), length(Re)); 
     
-            detF_grid(iy, ix) = det_integral_f(f, lambda_grid(iy, ix), rad);
+    % --- nested loop ---
+    for i = 1:length(Im)
+        for j = 1:length(Re)
+            lambda = Re(j) + 1i*Im(i);
+            Fvals(i,j) = ( g(lambda,q,eta,a1,a2,b1,b2,c1,c2) - lambda);
         end
     end
 
-    % Plot absolute value
+% --- Plot the contour ---
     figure;
-    imagesc(x, y, abs(detF_grid));
-    axis xy; 
-    colorbar;
-    xlabel('Re(\lambda)');
-    ylabel('Im(\lambda)');
-    clim([0 0.1]);
-    title('|det F(\lambda)| in complex plane');
-    
-    % Plot contour where |detF| = 0 (numerically, use small tolerance)
-    figure;
-    contour(X,Y,abs(detF_grid), [1e-6 1e-3], 'LineWidth', 2);  % zero contour
-    xlabel('Re(\lambda)');
-    ylabel('Im(\lambda)');
-    title('Contour in complex \lambda-plane where det F(\lambda) = 0');
+    shading interp;
+
+    hold on;
+    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'b-', 'LineWidth', 6);
+    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'b-', 'LineWidth', 6);
+ 
+    plot(real(lambda_sol), imag(lambda_sol), 'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
+    plot(real(lambda_sol2), imag(lambda_sol2), 'ko', 'MarkerSize', 12, 'MarkerFaceColor', 'g');
+    plot(real(a2), imag(a2), 'ks', 'MarkerSize', 17, 'MarkerFaceColor', 'c');
+
+    contour3(Re, Im, imag(Fvals), [0 0], 'k', 'LineWidth', 2)
+    contour3(Re, Im, real(Fvals), [0 0], 'r', 'LineWidth', 2)
+
+    plot(real(lambda_roots(1,:)), imag(lambda_roots(1,:)), 'b-', 'LineWidth', 6);
+    plot(real(lambda_roots(2,:)), imag(lambda_roots(2,:)), 'b-', 'LineWidth', 6);
+
+    axis xy
+    xlabel('$\mathrm{Re}$', 'Interpreter', 'latex', 'FontSize', 16);
+    ylabel('$\mathrm{Im}$', 'Interpreter', 'latex', 'FontSize', 16);
+    set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
+    set(gcf, 'Position', [100, 100, 500, 300]); 
+
+    xlim([min(Re), max(Re)]);
+    ylim([min(Im), max(Im)]);
     grid on;
+    box on;
+    legend({'$\sigma_{ess}(\mathbf{T}_{AB})$', '','$\lambda_{int}$', '','$\sigma(\mathbf{B}_0)$', '$Im(F(\lambda))=0$','$Re(F(\lambda))=0$'}, ...
+       'Interpreter','latex','Location','southwest','NumColumns',2);
+    hold off;
+    exportgraphics(gcf,'ContourImpedanceHermitian.pdf','ContentType','vector')
+
+
+    %%
+
+% --- complex grid ---
+Re = linspace(0.5, 2.5, 200);
+Im = linspace(-0.7,0.7, 200);
+
+[ReGrid, ImGrid] = meshgrid(Re, Im);
+
+Fvals = zeros(size(ReGrid));  % preallocate
+
+% --- compute Fvals ---
+for i = 1:length(Im)
+    for j = 1:length(Re)
+        lambda = Re(j) + 1i*Im(i);
+        Fvals(i,j) = min(1000, g(lambda,q,eta,a1,a2,b1,b2,c1,c2) - lambda);
+    end
+end
+
+% =====================================================
+% Extract contour where Im(Fvals) = 0
+% =====================================================
+
+C = contourc(Re, Im, imag(Fvals), [0 0]);
+
+% Parse contour matrix
+idx = 1;
+Xc = [];
+Yc = [];
+
+while idx < size(C,2)
+    npts = C(2,idx);
+    Xc = [Xc, C(1, idx+1:idx+npts)];
+    Yc = [Yc, C(2, idx+1:idx+npts)];
+    idx = idx + npts + 1;
+end
+
+% =====================================================
+% Interpolate Re(Fvals) along that curve
+% =====================================================
+
+ReF_on_curve = interp2(ReGrid, ImGrid, real(Fvals), Xc, Yc);
+
+% =====================================================
+% Plot
+% =====================================================
+
+figure
+hold on
+
+% 3D curve: (Re(lambda), Im(lambda), Re(F(lambda)))
+plot3(Xc, Yc, ReF_on_curve, 'r', 'LineWidth', 2)
+
+% Optional: also show the zero contour in the plane
+contour3(Re, Im, imag(Fvals), [0 0], 'k', 'LineWidth', 1.5)
+
+z_level = 0;
+plot3(real(lambda_roots(1,:)), ...
+      imag(lambda_roots(1,:)), ...
+      z_level * ones(size(lambda_roots(1,:))), ...
+      'b-', 'LineWidth', 6);
+
+plot3(real(lambda_roots(2,:)), ...
+      imag(lambda_roots(2,:)), ...
+      z_level * ones(size(lambda_roots(2,:))), ...
+      'b-', 'LineWidth', 6);
+
+grid on
+xlabel('Re(\lambda)')
+ylabel('Im(\lambda)')
+zlabel('Re(F(\lambda))')
+
+set(gca,'FontSize',14)
+view(45,30)
+
+
+% =====================================================
+% Interpolate Re(F) on the curve
+% =====================================================
+
+ReF_on_curve = interp2(ReGrid, ImGrid, real(Fvals), Xc, Yc);
+
+% =====================================================
+% Create 2D projection
+% =====================================================
+
+%%
+% Parameterize curve by arc length (smooth ordering)
+s = [0 cumsum(sqrt(diff(Xc).^2 + diff(Yc).^2))];
+
+    figure
+    plot(s, ReF_on_curve, 'r', 'LineWidth', 2)
+    xlabel('Parameter along Im(F)=0 curve')
+    ylabel('Re(F)')
+    grid on
+    
+    set(gcf, 'Position', [100, 100, 600, 400]); 
+
+    xlabel('Curve along which $\mathrm{Im}\big(F(\lambda)\big)=0$', 'Interpreter', 'latex', 'FontSize', 16);
+    ylabel('$\mathrm{Re}\big(F(\lambda)\big)$', 'Interpreter', 'latex', 'FontSize', 16);
+    set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
+    exportgraphics(gcf,'CurveImZero.pdf','ContentType','vector')
+
 
 
 %% --- Defining functions ---
-
-function detF = det_integral_f(f, lambda, r)
-    % detF = det_integral_f(f, lambda)
-    % Computes det( (1/2pi i) * integral_T ( (f(z)-lambda*I)^(-1) dz/z ) )
-    % INPUTS:
-    %   f      : function handle f(z), returns 2x2 matrix
-    %   lambda : scalar
-    % OUTPUT:
-    %   detF   : scalar value of the determinant
-    
-    N = 200;  % number of points for numerical integration
-    theta = linspace(0, 2*pi, N+1);
-    theta(end) = [];  % avoid duplication at 2pi
-    
-    integral_matrix = zeros(2,2);
-    
-    for k = 1:N
-        z = r*exp(1i*theta(k));
-        InvF = (f(z) - lambda*eye(2)) \ eye(2);
-        integral_matrix = integral_matrix + InvF;
-    end
-    
-    integral_matrix = integral_matrix / N;  % approximate integral / (2pi)
-    detF = det(integral_matrix);
-end    
-
 
 function gval = g(lambda, q, eta, a1, a2, b1, b2, c1, c2)
 
@@ -295,7 +306,7 @@ function gval = g(lambda, q, eta, a1, a2, b1, b2, c1, c2)
     b = -((a2 - lambda)*(a1 - lambda) - b2*c2 - c1*b1);
     c = b2*b1;
     
-    D = b^2 - 4*a*c;          % Discriminant
+    D = b^2 - 4*a*c;  % Discriminant
     
     z1 = (-b + sqrt(D)) / (2*a);
     z2 = (-b - sqrt(D)) / (2*a);
