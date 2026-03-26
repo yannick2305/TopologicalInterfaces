@@ -87,5 +87,5 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
 
 If you use this code in your research, please cite:
 
-> de Bruijn, Y.and Hiltunen, E.O., *Twofold Tridiagonal Toeplitzs* (2026)
+> de Bruijn, Y.and Hiltunen, E.O., *Topologically protected interface modes in multi-banded damped lattice models* (2026)
 
