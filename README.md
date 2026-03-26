@@ -12,6 +12,14 @@
 
   <sub>Last updated: March 13, 2026</sub>
 
+## I. Topological robustness of edge modes 
+
+**Dimer topologically protected edges modes** (`ComplexDimerTopo.m`) 
+
+<p align="center"> 
+  <img src="Images/TopoDimer.png" alt="Topologically protected edge modes" width="550"/> 
+</p>
+
 ## I. Mirrored Twofold Toeplitz operators
 
 We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued entries.
