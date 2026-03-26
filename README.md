@@ -37,6 +37,10 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/OpenLimitDimer.png" alt="Mirrored Dimer" width="550"/> 
 </p>
 
+<p align="center"> 
+  <img src="Images/DimerMatchedInterface.png" alt="Matched interface" width="550"/> 
+</p>
+
 **Mirrored Trimer twofold Toeplitz** (`TwofoldTrimer.m`)  
 
 <p align="center"> 
