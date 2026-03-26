@@ -47,6 +47,13 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/OpenLimitTrimer.png" alt="Mirrored Trimer" width="550"/> 
 </p>
 
+**Interface my common coupling** (`InterfaceCoupling.m`)  
+
+<p align="center"> 
+  <img src="Images/InterfaceCoupling.png" alt="Common Coupling" width="550"/> 
+</p>
+
+
 ## II. Damped Resonator chains
 
 **Open Limit damped resonator chain** (`DampedDimerChain.m` and `DampedTrimerChain.m`)  
