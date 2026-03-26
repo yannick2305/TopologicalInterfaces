@@ -61,6 +61,13 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/ChainInterface.png" alt="Chain interface" width="550"/> 
 </p>
 
+**Stabiloty of the interface mode under perturbations** (`NoisySSH.m`)  
+
+<p align="center"> 
+  <img src="Images/StabilityInterface.png" alt="Stability interface" width="550"/> 
+</p>
+
+
 ## III. Disorder Damped Interface SSH
 
 **Spectrum Disordered Dimer Interface chain** (`DisorderedSpectrumSSH.m`)  
