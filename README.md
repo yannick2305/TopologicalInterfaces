@@ -68,6 +68,10 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/ChainInterface.png" alt="Chain interface" width="550"/> 
 </p>
 
+<p align="center"> 
+  <img src="Images/TopologicalInterface.png" alt="Topological interface" width="550"/> 
+</p>
+
 **Stabiloty of the interface mode under perturbations** (`NoisySSH.m`)  
 
 <p align="center"> 
