@@ -13,8 +13,8 @@ close all;
 % --- Set the parameters ---
     si = 10;
     n  = (4*si + 1);
-    s1 = 1;
-    s2 = 2;   % Set s1>s2 for edge mode.
+    s1 = 2;
+    s2 = 1;   % Set s1>s2 for edge mode.
     fs = 18;
     
 % --- Generare SSH Capacitance ---
@@ -103,11 +103,41 @@ close all;
 
     %$\lambda_{int}$ $\sigma(\mathbf{B_0})$
     xlim([-0.2 + min(real(eigvals)), 0.2 + max(real(eigvals))]);
-    ylim([-0.3 + min(imag(eigvals)), 0.3 + max(imag(eigvals))])
+    ylim([-0.3 + min(imag(eigvals)), 0.3 + max(imag(eigvals))]);
     hold off;
     grid on;
     set(gcf, 'Position', [100, 100, 500, 300]);
-    exportgraphics(gcf,'ComplexSSH.pdf','ContentType','vector')
+    %exportgraphics(gcf,'ComplexSSH.pdf','ContentType','vector')
+
+
+%% --- Interfcae mode ---
+    [V, D] = eig(T);        
+    eigenvalues = diag(D);     
+    
+    index = (-floor(n/2):floor(n/2))'; 
+    
+    % Sort eigenvalues (and eigenvectors) in ascending order
+    [eigenvalues_sorted, sort_idx] = sort(eigenvalues, 'ascend');
+    V_sorted = V(:, sort_idx);
+    
+    % Select a specific eigenvalue
+    k = 22;                          % <<< Change this index to select a different eigenvalue
+    
+    selected_eigenvalue  = eigenvalues_sorted(k);
+    selected_eigenvector = V_sorted(:, k);
+    
+    
+    figure;
+    plot(index, selected_eigenvector, 'ko-', 'MarkerSize', 6, 'MarkerFaceColor', 'k');
+    xlabel('Index $i$', 'Interpreter', 'latex', 'FontSize', 14);
+    ylabel('$\mathbf{w}_i$', 'Interpreter', 'latex', 'FontSize', 14);
+    ax = gca;
+    ax.TickLabelInterpreter = 'latex';
+    ax.FontSize = fs; 
+    ylim([-0.15 + min(real(selected_eigenvector)), 0.15 + max(real(selected_eigenvector))]);
+    grid on;
+    set(gcf, 'Position', [100, 100, 500, 300]);
+    %exportgraphics(gcf,'Eigmode12.pdf','ContentType','vector')
 
 
 %% --- Topological robustness ---
