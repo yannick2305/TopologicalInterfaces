@@ -1,4 +1,4 @@
-<h1 align="center">Computatiponal Notebook: Topological Interface Modes in Damped Resonator Chains</h1>
+<h1 align="center">Topological Interface Modes in Damped Resonator Chains</h1>
 <p align="center">
   <b>Y. DE BRUIJN</b> and <b>E. O. HILTUNEN</b><br>
   <sub><i>University of Oslo</i></sub><br>
@@ -10,7 +10,7 @@
 
 **Abstract:** We provide the complete computational framework supporting the theoretical results in [1].
 
-  <sub>Last updated: March 13, 2026</sub>
+  <sub>Last updated: April 07, 2026</sub>
 
 ## I. Topological robustness of edge modes 
 
