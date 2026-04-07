@@ -15,11 +15,11 @@ close all;
 
 % --- Build alternating diagonal values ---  
     a1 = 1.2 + 0.0*1i;
-    a2 = 1.0 + 0.3*1i;
+    a2 = 1.0 + 0.0*1i;
     a3 = 1.4 + 0.1*1i;
 
     b1 = 3.8 + 0.4*1i;
-    b2 = 1.2 + 0.9*1i;
+    b2 = 1.2 - 0.9*1i;
     b3 = 2.0 + 0.1*1i;
     c1 = b1;
     c2 = b2; 
@@ -117,7 +117,7 @@ close all;
     xlim([-1 + min( real(eigMirror) ), 1 + max( real(eigMirror) )]);
     ylim([-0.5 + min( imag(eigMirror) ), 0.7 + max( imag(eigMirror) )]);
     grid on;
-    legend({'$\sigma(\mathbf{T}_{AB})$','$\sigma(\tilde{\mathbf{T}}_{A})$','$\lambda_{int}$','$\sigma(\mathbf{B}_0)$'}, ...
+    legend({'$\sigma(\mathbf{T}_{AB})$','$\sigma(\mathbf{T}_{A})$','$\lambda_{int}$','$\sigma(\mathbf{B}_0)$'}, ...
        'Interpreter','latex','Location','northeast','NumColumns',4);
     hold off;
  
@@ -170,4 +170,3 @@ function Fvec = fsolve_g_wrapper(x,q,eta,a1,a2,a3,b1,b2,b3,c1,c2,c3)
     % fsolve expects real vector, so split real/imag
     Fvec = [real(F); imag(F)];
 end
-
