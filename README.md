@@ -1,4 +1,4 @@
-<h1 align="center">Spectra and Topological Interface Modes in Damped Tight-Binding Resonator Chains</h1>
+<h1 align="center">Computatiponal Notebook: Topological Interface Modes in Damped Resonator Chains</h1>
 <p align="center">
   <b>Y. DE BRUIJN</b> and <b>E. O. HILTUNEN</b><br>
   <sub><i>University of Oslo</i></sub><br>
