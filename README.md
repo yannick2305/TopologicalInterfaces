@@ -93,10 +93,16 @@ We plot the spectrum of mirrored twofold Toeplitz operators with complex-valued 
   <img src="Images/DisorderDecay.png" alt="Disorder Decay" width="550"/> 
 </p>
 
-**Spectruma and Decay rates Disordered 4-periodic Interface chain** (`Disorder4PeriodicSpectrumSSH.m` and `Disordered4PeriodicDecaySSh.m`)  
+**Spectrum and Decay rates Disordered 4-periodic Interface chain** (`Disorder4PeriodicSpectrumSSH.m` and `Disordered4PeriodicDecaySSh.m`)  
 
 <p align="center"> 
   <img src="Images/Disordered_4_periodic.png" alt="Disorder Decay Fourmer" width="550"/> 
+</p>
+
+**Continuum and Discrete Models** (`ContinuumLimit.m`)  
+
+<p align="center"> 
+  <img src="Images/ContinuumLimit.png" alt="Continuum Limit" width="550"/> 
 </p>
 
 
