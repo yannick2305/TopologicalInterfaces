@@ -83,7 +83,7 @@ close all;
     n_im = 1;            
     
     % --- Create complex grid ---
-    re_vals = linspace(-3.53, -2.648, n_re);   
+    re_vals = linspace(-3.53, -2.647, n_re);   
     im_vals = linspace(0,  0, n_im);
     
     [Re_grid, Im_grid] = meshgrid(re_vals, im_vals);
@@ -188,12 +188,12 @@ end
     F_abs = abs(F_grid);
 
 
-    A = [min(re_vals), F_re(1)];
-    B = [max(re_vals), max(F_re)];
+    A = [-min(re_vals), F_re(1)];
+    B = [-max(re_vals), max(F_re)];
 
 % --- Plot the matched frequency ---
     figure;
-    plot(re_vals, F_re, 'r-', 'LineWidth', 1.8);
+    plot(-re_vals, F_re, 'r-', 'LineWidth', 1.8);
     hold on;
      
     plot(A(1), A(2), 'ko', 'MarkerSize',8, 'MarkerFaceColor','k')
@@ -201,20 +201,19 @@ end
     text(A(1)+0.02, A(2)-0.2, '  A', 'Interpreter', 'latex', 'FontSize', 16);
     text(B(1)+0.02, B(2)-0.2, '  B', 'Interpreter', 'latex', 'FontSize', 16);
 
-    xline(min(re_vals), '--k')   
-    xline(max(re_vals), '--k') 
+    xline(-min(re_vals), '--k')   
+    xline(-max(re_vals), '--k') 
 
-    xlim([-3.6, -2.6]);
-    ylim([-1000, 1000]);
-    ylabel('$F(\lambda)$', 'Interpreter', 'latex', 'FontSize', 12);
-    xlabel('$\lambda$', 'Interpreter', 'latex', 'FontSize', 12);
+    xlim([2.6, 3.6]);
+    ylim([-800, 800]);
+    ylabel('$F(\omega^2)$', 'Interpreter', 'latex', 'FontSize', 12);
+    xlabel('$\omega^2$', 'Interpreter', 'latex', 'FontSize', 12);
 
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
     set(gcf, 'Position', [100, 100, 500, 300]); 
     box on;
     grid on;
     hold off;
-
 
 
 %% --- Defining functions ---
@@ -226,7 +225,7 @@ function floquet_spectrum(A, M)
 
     % --- Sweep theta in [0, 2*pi] ---
     N_theta = 200;                          % resolution
-    theta   = linspace(0, 2*pi, N_theta);
+    theta   = linspace(-pi, pi, N_theta);
     z_vec   = exp(1i * theta);
  
     eigs_all = zeros(M, N_theta);           % store all M eigenvalues per theta
@@ -238,10 +237,9 @@ function floquet_spectrum(A, M)
     end
  
     % --- Plots ---
-    theta_pi = theta / pi;   % x-axis in units of pi
  
-    A = [1, -2.648];
-    B = [1, -3.554];
+    A = [0, 2.648];
+    B = [0, 3.554];
 
     figure;
     hold on;
@@ -249,28 +247,33 @@ function floquet_spectrum(A, M)
     plot(nan, nan, 'r--', 'LineWidth', 2);
 
     for b = 1:M
-        plot(theta_pi, real(eigs_all(b,:)), 'k-', 'LineWidth', 2);
+        plot(theta, -real(eigs_all(b,:)), 'k-', 'LineWidth', 2);
     end
 
-    yline(eigB0, 'r--', 'LineWidth', 2);
+    yline(-eigB0, 'r--', 'LineWidth', 2);
+
+    yline(A(2), 'k:', 'LineWidth', 2);
+    yline(B(2), 'k:', 'LineWidth', 2);
 
     plot(A(1), A(2), 'ko', 'MarkerSize',8, 'MarkerFaceColor','k')
     plot(B(1), B(2), 'ko', 'MarkerSize',8, 'MarkerFaceColor','k')
-    text(A(1), A(2)-0.2, '  B', 'Interpreter', 'latex', 'FontSize', 16);
-    text(B(1), B(2)-0.2, '  A', 'Interpreter', 'latex', 'FontSize', 16);
+    text(A(1), A(2)-0.6, '  B', 'Interpreter', 'latex', 'FontSize', 16);
+    text(B(1), B(2)+0.5, '  A', 'Interpreter', 'latex', 'FontSize', 16);
 
-    xline(1, '--k', 'LineWidth', 0.8);
-    xlabel('$\theta / \pi$', 'Interpreter', 'latex', 'FontSize', 12);
-    ylabel('$\lambda$',      'Interpreter', 'latex', 'FontSize', 12);
+    xlabel('$\theta$', 'Interpreter', 'latex', 'FontSize', 12);
+    ylabel('$\omega^2$',      'Interpreter', 'latex', 'FontSize', 12);
     legend({'$\sigma\big(f(e^{i\theta})\big)$', '$\sigma(\mathbf{B}_0)$'}, 'Interpreter','latex','Location','northeast','NumColumns',2);
-    xlim([0 2]);
     grid on;  
     box on;
 
+    xlim([-pi-0.2, pi+0.2]);
+    
+    xticks(-pi:pi/2:pi)
+    xticklabels({'$-\pi$','$-\pi/2$','$0$','$\pi/2$','$\pi$'});
     set(gca, 'TickLabelInterpreter', 'latex', 'FontSize', 18);
     set(gcf, 'Position', [100, 100, 500, 300]); 
 
-    ylim([-5, -1]);
+    ylim([0, 10]);
 end
 
 function Hz = bloch_matrix(A, M, z)
